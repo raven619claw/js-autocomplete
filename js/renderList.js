@@ -74,17 +74,21 @@ const bindKeyboardMouseEvent = () => {
 }
 
 const arrowEvent = (e) => {
-  const inputQuery = document.querySelector("#query")
-  // const { elementSelected, indexSelected } = getActiveResult()
   if (e.keyCode == "38") {
     // up arrow
-    inputQuery.blur()
-    moveActiveElementUpDown()
+    arrowAction(false)
   } else if (e.keyCode == "40") {
     // down arrow
-    inputQuery.blur()
-    moveActiveElementUpDown(true)
+    arrowAction(true)
   }
+}
+const arrowAction = (flag = false) => {
+  const inputQuery = document.querySelector("#query")
+  const inputValueLen = inputQuery.value.length
+  inputQuery.blur()
+  moveActiveElementUpDown(flag)
+  inputQuery.setSelectionRange(inputValueLen, inputValueLen)
+  inputQuery.focus()
 }
 //based on active element move selection up or down
 const moveActiveElementUpDown = (flag) => {

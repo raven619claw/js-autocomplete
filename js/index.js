@@ -4,8 +4,8 @@ import search from "./search.js"
 import renderList from "./renderList.js"
 const resultList = document.querySelector(".result-list")
 const closeIcon = document.querySelector(".close-icon")
+const inputQuery = document.querySelector("#query")
 const init = () => {
-  const inputQuery = document.querySelector("#query")
   //store the previous input
   let prevInput = ""
   //store if previous input had results
@@ -21,6 +21,7 @@ const init = () => {
       // can add check to provide results only if minimum str length is reached
       // && inputValue.length > 3
     ) {
+      resultList.scrollTop = 0
       //if input is empty render empty list
       if (inputValue == "") {
         renderList("", [], true)
