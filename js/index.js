@@ -10,6 +10,30 @@ const init = () => {
   let prevInput = ""
   //store if previous input had results
   let hasPrevResults = false
+  //on focus show list if previous input was valid
+  inputQuery.addEventListener("focus", (e) => {
+    if (prevInput && hasPrevResults) {
+      addRemoveClassOnElement("visible", resultList, true)
+      addRemoveClassOnElement("show", closeIcon, true)
+    }
+  })
+  //on close click render empty list and clear input
+  closeIcon.addEventListener("click", () => {
+    renderList("", [], true)
+    document.querySelector("#query").value = ""
+    addRemoveClassOnElement("show", closeIcon)
+    prevInput = ""
+    hasPrevResults = false
+  })
+  //on clicking outside close list
+  document.querySelector("body").addEventListener("click", (e) => {
+    const noResults = document.querySelector(".no-results")
+    if (e.target == e.currentTarget) {
+      addRemoveClassOnElement("show", noResults)
+      addRemoveClassOnElement("visible", resultList)
+      addRemoveClassOnElement("show", closeIcon)
+    }
+  })
   //on every key input run listener to fetch new results and update
   //can add throttle here if results were fetched from API
   inputQuery.addEventListener("keyup", (e) => {
@@ -37,14 +61,14 @@ const init = () => {
         if (!hasPrevResults) {
           //then show no users found error
           //pass no results as it is dynamically generated
-          showHideNoUserErr(true, noResults)
+          showHideNoUserErr(true)
           // hasPrevResults = false
         }
         prevInput = inputValue
         return
       }
       //else clear no users err
-      showHideNoUserErr(false, noResults)
+      showHideNoUserErr(false)
       //if results are found render the list with data
       renderList(inputValue, searchResult)
       hasPrevResults = true
@@ -54,7 +78,8 @@ const init = () => {
   })
 }
 init()
-const showHideNoUserErr = (flag, noResults) => {
+const showHideNoUserErr = (flag) => {
+  const noResults = document.querySelector(".no-results")
   addRemoveClassOnElement("show", noResults, flag)
   addRemoveClassOnElement("visible", resultList, flag)
   addRemoveClassOnElement("show", closeIcon, flag)

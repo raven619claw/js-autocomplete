@@ -163,4 +163,8 @@ body {
   display: -ms-flexbox;
   display: flex;
 }
+
+body {
+  height: 100vh;
+}
 /*# sourceMappingURL=index.css.map */

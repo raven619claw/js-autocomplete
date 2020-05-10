@@ -10,12 +10,7 @@ import {
 
 const resultList = document.querySelector(".result-list")
 const closeIcon = document.querySelector(".close-icon")
-//on close click render empty list and clear input
-closeIcon.addEventListener("click", () => {
-  renderList("", [], true)
-  document.querySelector("#query").value = ""
-  addRemoveClassOnElement("show", closeIcon)
-})
+
 const renderList = (query, list, resetFlag) => {
   resultList.innerHTML = "<div class='no-results'>No users found</div>"
   //on reset empty the list
