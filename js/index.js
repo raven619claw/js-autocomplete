@@ -5,6 +5,14 @@ import renderList from "./renderList.js"
 const resultList = document.querySelector(".result-list")
 const closeIcon = document.querySelector(".close-icon")
 const inputQuery = document.querySelector("#query")
+//added this to prevent cursor movement for arrow keys
+inputQuery.addEventListener("keydown", (e) => {
+  if (e.keyCode == "38" || e.keyCode == "40") {
+    e.preventDefault()
+    return
+  }
+})
+
 const init = () => {
   //store the previous input
   let prevInput = ""
