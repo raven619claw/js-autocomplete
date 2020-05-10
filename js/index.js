@@ -2,6 +2,8 @@ import { addRemoveClassOnElement } from "./utils.js"
 import mockData from "./mock.js"
 import search from "./search.js"
 import renderList from "./renderList.js"
+const resultList = document.querySelector(".result-list")
+const closeIcon = document.querySelector(".close-icon")
 const init = () => {
   const inputQuery = document.querySelector("#query")
   //store the previous input
@@ -33,13 +35,15 @@ const init = () => {
         //and if there were no previous results
         if (!hasPrevResults) {
           //then show no users found error
-          addRemoveClassOnElement("show", noResults, true)
+          //pass no results as it is dynamically generated
+          showHideNoUserErr(true, noResults)
           // hasPrevResults = false
         }
         prevInput = inputValue
         return
       }
-      addRemoveClassOnElement("show", noResults)
+      //else clear no users err
+      showHideNoUserErr(false, noResults)
       //if results are found render the list with data
       renderList(inputValue, searchResult)
       hasPrevResults = true
@@ -49,3 +53,8 @@ const init = () => {
   })
 }
 init()
+const showHideNoUserErr = (flag, noResults) => {
+  addRemoveClassOnElement("show", noResults, flag)
+  addRemoveClassOnElement("visible", resultList, flag)
+  addRemoveClassOnElement("show", closeIcon, flag)
+}

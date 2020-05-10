@@ -1,4 +1,12 @@
-import { addRemoveClassOnElement } from "./utils.js"
+import {
+  addRemoveClassOnElement,
+  scrollIntoView,
+  clearActiveFromAll,
+  splitString,
+  splitList,
+  getSideResultHtml,
+  getMainResultHtml,
+} from "./utils.js"
 
 const resultList = document.querySelector(".result-list")
 const closeIcon = document.querySelector(".close-icon")
@@ -26,31 +34,10 @@ const renderList = (query, list, resetFlag) => {
   mainList.map((obj) => {
     const div = document.createElement("div")
     addRemoveClassOnElement("result", div, true)
-    let { name, id, address } = obj
-
-    //find index from strings to highlight query input
-    const [nameStrStart, nameStrEnd] = splitString(name, query)
-    const [idStrStart, idStrEnd] = splitString(id, query)
-    div.innerHTML = `
-    <div class='item-id'>${id.slice(
-      0,
-      idStrStart
-    )}<span class='selected'>${id.slice(idStrStart, idStrEnd)}</span>${id.slice(
-      idStrEnd
-    )}</div>
-
-    <div class='item-name'>${name.slice(
-      0,
-      nameStrStart
-    )}<span class='selected'>${name.slice(
-      nameStrStart,
-      nameStrEnd
-    )}</span>${name.slice(nameStrEnd)}</div>
-
-    <div class='item-address'>${address}</div>
-    `
+    div.innerHTML = getMainResultHtml(obj, query)
     resultList.appendChild(div)
   })
+  //add divider between main and side results
   const div = document.createElement("div")
   div.innerHTML = `"${query}" found in items`
   addRemoveClassOnElement("divider", div, true)
@@ -61,48 +48,87 @@ const renderList = (query, list, resetFlag) => {
   sideList.map((obj) => {
     const div = document.createElement("div")
     addRemoveClassOnElement("result", div, true)
-    let { name, id, address } = obj
-    const [addressStrStart, addressStrEnd] = splitString(address, query)
-    div.innerHTML = `
-    <div class='item-id'>${id}</div>
-    <div class='item-name'>${name}</div>
-    <div class='item-address'>${address.slice(
-      0,
-      addressStrStart
-    )}<span class='selected'>${address.slice(
-      addressStrStart,
-      addressStrEnd
-    )}</span>${address.slice(addressStrEnd)}</div>
-    `
+    div.innerHTML = getSideResultHtml(obj, query)
     resultList.appendChild(div)
   })
+  bindKeyboardMouseEvent()
 }
-//finds index to split string for given sub string
-const splitString = (string, subString) => {
-  const str1End = string.toLowerCase().indexOf(subString.toLowerCase())
-  if (str1End == -1) {
-    return [string.length, string.length]
-  }
-  const str2Start = str1End + subString.length
 
-  return [str1End, str2Start]
-}
-//split results list based on main keys(name,id)
-const splitList = (query, list) => {
-  const mainList = []
-  const sideList = []
-  list.map((obj) => {
-    const { name, id } = obj
-    if (
-      name.toLowerCase().indexOf(query) > -1 ||
-      id.toLowerCase().indexOf(query) > -1
-    ) {
-      mainList.push(obj)
+//fn to handle mouse over and keyboard events for navigation
+const bindKeyboardMouseEvent = () => {
+  const resultList = document.querySelector(".result-list")
+  resultList.addEventListener("mouseover", (e) => {
+    const target = e.target
+    if (target.classList.contains("result")) {
+      clearActiveFromAll()
+      addRemoveClassOnElement("active", target, true)
     } else {
-      sideList.push(obj)
+      return
     }
   })
-  return { mainList, sideList }
+  resultList.addEventListener("mouseleave", (e) => {
+    clearActiveFromAll()
+  })
+  document.removeEventListener("keyup", arrowEvent)
+  document.addEventListener("keyup", arrowEvent)
+}
+
+const arrowEvent = (e) => {
+  const inputQuery = document.querySelector("#query")
+  // const { elementSelected, indexSelected } = getActiveResult()
+  if (e.keyCode == "38") {
+    // up arrow
+    inputQuery.blur()
+    moveActiveElementUpDown()
+  } else if (e.keyCode == "40") {
+    // down arrow
+    inputQuery.blur()
+    moveActiveElementUpDown(true)
+  }
+}
+//based on active element move selection up or down
+const moveActiveElementUpDown = (flag) => {
+  const allResults = document.querySelectorAll(".result")
+  //flag:true go down
+  //flag:false go up
+  let { indexSelected } = getActiveResult()
+  const toActiveElementIndex = flag ? indexSelected + 1 : indexSelected - 1
+  const resultsArray = Array.from(allResults)
+  const totalResults = resultsArray.length
+  let newActive = null
+  clearActiveFromAll()
+  if (flag && toActiveElementIndex == totalResults) {
+    addRemoveClassOnElement("active", resultsArray[0], true)
+    newActive = resultsArray[0]
+  } else if (!flag && toActiveElementIndex < 0) {
+    addRemoveClassOnElement("active", resultsArray[totalResults - 1], true)
+    newActive = resultsArray[totalResults - 1]
+  } else {
+    resultsArray.map((element, index) => {
+      if (toActiveElementIndex === index) {
+        addRemoveClassOnElement("active", element, true)
+        newActive = element
+      }
+    })
+  }
+  scrollIntoView(newActive)
+}
+
+//get the currently selected result
+const getActiveResult = () => {
+  const allResults = document.querySelectorAll(".result")
+  let indexSelected = -1
+  let elementSelected = null
+  Array.from(allResults).map((element, index) => {
+    if (element.classList.contains("active")) {
+      indexSelected = index
+      elementSelected = element
+    }
+  })
+  return {
+    indexSelected,
+    elementSelected,
+  }
 }
 
 export default renderList
